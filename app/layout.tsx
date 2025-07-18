@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import Footer from "@/common-ui/footer/page";
 import { ThemeProvider } from "next-themes";
-import Navbar from "@/common-ui/header/page";
 import { ClerkProvider } from "@clerk/nextjs";
-import { barlow, barlowCondensed } from "@/lib/fonts";
+import Footer from "@/common-ui/footer/page";
+import Header from "@/common-ui/header/page";
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
-  title: "Full Stack Blog",
-  description: "Created with Clerk, Next.js, Tailwind CSS, and Prisma",
-  keywords: ["blog", "full stack", "clerk", "next.js", "tailwind css", "prisma"],
-  authors: [{ name: "John Doe" }],
-  publisher: "John Doe",
-  
- };
+  title: "Athena - Creative Magazine",
+  description: "A modern creative magazine platform",
+};
 
 export default function RootLayout({
   children,
@@ -22,11 +22,16 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${barlow.variable} ${barlowCondensed.variable} font-sans`}>
-        <body className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <Navbar />
-            <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${inter.variable} font-sans min-h-screen flex flex-col bg-white dark:bg-gray-900`}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            <main className="flex-1 pt-20">
               {children}
             </main>
             <Footer />
