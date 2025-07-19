@@ -2,14 +2,34 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { FiMoon, FiSun, FiMenu, FiX } from 'react-icons/fi';
+import { FiMoon, FiSun, FiMenu, FiX, FiUser, FiLogIn } from 'react-icons/fi';
 import { useTheme } from 'next-themes';
+import { useUser, SignInButton, UserButton } from '@clerk/nextjs';
 
 export default function Header() {
   const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
+  const { isSignedIn, user } = useUser();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (isSignedIn) {
+        try {
+          const response = await fetch('/api/auth/role');
+          const data = await response.json();
+          setIsAdmin(data.role === 'ADMIN');
+        } catch (error) {
+          console.error('Error checking admin status:', error);
+        }
+      }
+    };
+    
+    checkAdmin();
+  }, [isSignedIn]);
 
   // After mounting, we have access to the theme
   useEffect(() => {
@@ -87,12 +107,36 @@ export default function Header() {
                     </button>
 
                     {/* User Profile */}
-                    <div className="flex items-center space-x-2">
-                      <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                        U
+                    {isSignedIn ? (
+                      <div className="flex items-center space-x-4">
+                        {isAdmin && (
+                          <Link 
+                            href="/admin" 
+                            className="text-sm font-medium text-gray-700 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400 transition-colors"
+                          >
+                            Admin Dashboard
+                          </Link>
+                        )}
+                        <div className="flex items-center space-x-2">
+                          <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+                            <UserButton afterSignOutUrl="/" />
+                          </div>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {user?.firstName || 'User'}
+                            {isAdmin && ' (Admin)'}
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Admin</span>
-                    </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <SignInButton mode="modal">
+                          <button className="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400 transition-colors">
+                            <FiLogIn className="h-4 w-4" />
+                            <span>Sign In</span>
+                          </button>
+                        </SignInButton>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -122,20 +166,6 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
-              </Link>
-              <Link
-                href="/pages"
-                className="block py-2 text-gray-700 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Pages
-              </Link>
-              <Link
-                href="/blog"
-                className="block py-2 text-gray-700 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Blog
               </Link>
               <Link
                 href="/contact"
