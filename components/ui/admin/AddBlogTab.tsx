@@ -1,80 +1,65 @@
 "use client";
 import React, { useState } from "react";
+import { useForm } from "@/lib/hooks/use-form";
+import { blogPostSchema } from "@/lib/validations";
 
 export default function AddBlogTab() {
-  const [form, setForm] = useState({
-    title: "",
-    subtitle: "",
-    content: "",
-    category: "",
-    status: "Published",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    // Clear any previous errors when user starts typing
-    if (error) setError(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(false);
-    setIsSubmitting(true);
-
-    try {
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  
+  const {
+    values,
+    errors,
+    handleChange,
+    handleSubmit,
+    isSubmitting,
+    resetForm
+  } = useForm({
+    initialValues: {
+      title: "",
+      subtitle: "",
+      content: "",
+      category: "",
+      featuredImage: "",
+      tags: [],
+      published: false
+    },
+    validationSchema: blogPostSchema,
+    onSubmit: async (formValues) => {
+      setHasAttemptedSubmit(true);
+      
       const response = await fetch("/api/blogs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(formValues),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        // Handle validation errors from server
+        if (data.errors) {
+          throw new Error(`Validation failed: ${data.errors.map((e: any) => e.message).join(', ')}`);
+        }
         throw new Error(data.error || 'Failed to create blog');
       }
 
-      // Clear form on success
-      setForm({ 
-        title: "", 
-        subtitle: "", 
-        content: "", 
-        category: "", 
-        status: "Published" 
-      });
-      
-      setSuccess(true);
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-      console.error('Error creating blog:', err);
-    } finally {
-      setIsSubmitting(false);
+      // Reset form on success
+      resetForm();
+      setHasAttemptedSubmit(false); // Reset the submit attempt flag
+      alert('Blog post created successfully!');
     }
+  });
+
+  // Custom submit handler to track attempts
+  const onFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setHasAttemptedSubmit(true);
+    handleSubmit(e);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6 p-6 bg-white rounded-lg shadow">
+    <form onSubmit={onFormSubmit} className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
       <h2 className="text-2xl font-bold mb-6">Create New Blog Post</h2>
-      
-      {error && (
-        <div className="p-4 mb-4 text-red-700 bg-red-100 rounded">
-          {error}
-        </div>
-      )}
-      
-      {success && (
-        <div className="p-4 mb-4 text-green-700 bg-green-100 rounded">
-          Blog post created successfully!
-        </div>
-      )}
       
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
@@ -83,12 +68,14 @@ export default function AddBlogTab() {
         <input
           id="title"
           name="title"
-          value={form.title}
-          onChange={handleChange}
+          value={values.title}
+          onChange={(e) => handleChange('title')(e.target.value)}
           placeholder="Enter blog title"
           className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          required
         />
+        {hasAttemptedSubmit && errors.title && (
+          <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+        )}
       </div>
       
       <div>
@@ -98,11 +85,14 @@ export default function AddBlogTab() {
         <input
           id="subtitle"
           name="subtitle"
-          value={form.subtitle}
-          onChange={handleChange}
+          value={values.subtitle || ''}
+          onChange={(e) => handleChange('subtitle')(e.target.value)}
           placeholder="Enter a short subtitle (optional)"
           className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
+        {hasAttemptedSubmit && errors.subtitle && (
+          <p className="mt-1 text-sm text-red-600">{errors.subtitle}</p>
+        )}
       </div>
       
       <div>
@@ -112,13 +102,85 @@ export default function AddBlogTab() {
         <textarea
           id="content"
           name="content"
-          value={form.content}
-          onChange={handleChange}
+          value={values.content}
+          onChange={(e) => handleChange('content')(e.target.value)}
           placeholder="Write your blog content here..."
           rows={8}
           className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          required
         />
+        {hasAttemptedSubmit && errors.content && (
+          <p className="mt-1 text-sm text-red-600">{errors.content}</p>
+        )}
+      </div>
+      
+      <div>
+        <label htmlFor="featuredImage" className="block text-sm font-medium text-gray-700 mb-1">
+          Featured Image <span className="text-red-500">*</span>
+        </label>
+        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+          <div className="space-y-1 text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+            >
+              <path
+                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div className="flex text-sm text-gray-600">
+              <label
+                htmlFor="featuredImage"
+                className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+              >
+                <span>Upload an image</span>
+                <input
+                  id="featuredImage"
+                  name="featuredImage"
+                  type="file"
+                  accept="image/png,image/jpg,image/jpeg,image/gif"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // Convert file to base64 or handle file upload
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const result = event.target?.result as string;
+                        handleChange('featuredImage')(result);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </label>
+              <p className="pl-1">or drag and drop</p>
+            </div>
+            <p className="text-xs text-gray-500">
+              PNG, JPG, GIF up to 10MB
+            </p>
+            <p className="text-xs text-gray-400">
+              Recommended size: 1200×630px (2:1 aspect ratio)
+            </p>
+          </div>
+        </div>
+        {values.featuredImage && (
+          <div className="mt-2">
+            <img
+              src={values.featuredImage}
+              alt="Preview"
+              className="h-32 w-auto rounded-md border border-gray-300"
+            />
+          </div>
+        )}
+        {hasAttemptedSubmit && errors.featuredImage && (
+          <p className="mt-1 text-sm text-red-600">{errors.featuredImage}</p>
+        )}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -129,28 +191,33 @@ export default function AddBlogTab() {
           <input
             id="category"
             name="category"
-            value={form.category}
-            onChange={handleChange}
+            value={values.category}
+            onChange={(e) => handleChange('category')(e.target.value)}
             placeholder="e.g., Technology, Lifestyle, Food"
             className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
           />
+          {hasAttemptedSubmit && errors.category && (
+            <p className="mt-1 text-sm text-red-600">{errors.category}</p>
+          )}
         </div>
         
         <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="published" className="block text-sm font-medium text-gray-700 mb-1">
             Status
           </label>
           <select
-            id="status"
-            name="status"
-            value={form.status}
-            onChange={handleChange}
+            id="published"
+            name="published"
+            value={values.published ? 'true' : 'false'}
+            onChange={(e) => handleChange('published')(e.target.value === 'true')}
             className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="Published">Published</option>
-            <option value="Unpublished">Unpublished</option>
+            <option value="false">Draft</option>
+            <option value="true">Published</option>
           </select>
+          {hasAttemptedSubmit && errors.published && (
+            <p className="mt-1 text-sm text-red-600">{errors.published}</p>
+          )}
         </div>
       </div>
       

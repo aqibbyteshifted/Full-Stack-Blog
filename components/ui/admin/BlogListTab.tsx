@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 
 export default function BlogListTab() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -49,7 +50,14 @@ export default function BlogListTab() {
   };
 
   const handleDelete = async (id: number): Promise<void> => {
-    if (!confirm('Are you sure you want to delete this blog post?')) return;
+    // Custom confirmation dialog
+    const userConfirmed = window.confirm('Are you sure you want to delete this blog post?');
+    if (!userConfirmed) {
+      toast('Deletion cancelled', { icon: 'ℹ️' });
+      return;
+    }
+    
+    const toastId = toast.loading('Deleting blog post...');
     
     try {
       const response = await fetch(`/api/blogs?id=${id}`, { 
@@ -59,14 +67,26 @@ export default function BlogListTab() {
       if (!response.ok) throw new Error('Failed to delete blog');
       
       setBlogs(blogs.filter((b) => b.id !== id));
+      
+      toast.success('Blog post deleted successfully!', {
+        id: toastId,
+        duration: 3000,
+      });
     } catch (err) {
-      setError('Failed to delete blog. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete blog';
+      toast.error(errorMessage, {
+        id: toastId,
+        duration: 4000,
+      });
       console.error('Error deleting blog:', err);
     }
   };
 
   const togglePublishStatus = async (id: number, currentStatus: 'Published' | 'Unpublished'): Promise<void> => {
     const newStatus = currentStatus === 'Published' ? 'Unpublished' : 'Published';
+    const action = newStatus === 'Published' ? 'Publishing' : 'Unpublishing';
+    
+    const toastId = toast.loading(`${action} blog post...`);
     
     try {
       const response = await fetch(`/api/blogs?id=${id}`, {
@@ -80,8 +100,20 @@ export default function BlogListTab() {
       setBlogs(blogs.map(blog => 
         blog.id === id ? { ...blog, status: newStatus } : blog
       ));
+      
+      toast.success(`Blog post ${newStatus === 'Published' ? 'published' : 'unpublished'} successfully!`, {
+        id: toastId,
+        duration: 3000,
+      });
     } catch (err) {
-      setError(`Failed to ${newStatus === 'Published' ? 'publish' : 'unpublish'} blog. Please try again.`);
+      const errorMessage = err instanceof Error ? 
+        err.message : 
+        `Failed to ${newStatus === 'Published' ? 'publish' : 'unpublish'} blog`;
+        
+      toast.error(errorMessage, {
+        id: toastId,
+        duration: 4000,
+      });
       console.error('Error updating blog status:', err);
     }
   };
@@ -93,6 +125,15 @@ export default function BlogListTab() {
     const matchesStatus = statusFilter === 'all' || blog.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // Show loading toast when data is being fetched
+  useEffect(() => {
+    if (isLoading) {
+      toast.loading('Loading blog posts...', { id: 'loading-blogs' });
+    } else {
+      toast.dismiss('loading-blogs');
+    }
+  }, [isLoading]);
 
   if (isLoading) {
     return (

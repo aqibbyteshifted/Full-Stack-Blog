@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from '@/lib/hooks/use-form';
+import { blogPostSchema } from '@/lib/validations';
+import toast from 'react-hot-toast';
 import ImageUpload from './ImageUpload';
 
 export interface BlogFormData {
@@ -37,240 +40,296 @@ export default function BlogForm({
   onSubmit,
   isSubmitting = false 
 }: BlogFormProps) {
-  const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    subtitle: initialData?.subtitle || '',
-    content: initialData?.content || '',
-    category: initialData?.category || '',
-    imageUrl: initialData?.imageUrl || '',
-    tags: Array.isArray(initialData?.tags) ? initialData.tags.join(', ') : '',
-    featured: initialData?.featured || false,
-  });
-  
-  const [error, setError] = useState<string | null>(null);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    }));
-  };
+  const {
+    values,
+    errors,
+    handleChange,
+    handleSubmit,
+    isSubmitting: formIsSubmitting,
+    resetForm
+  } = useForm({
+    initialValues: {
+      title: initialData?.title || '',
+      subtitle: initialData?.subtitle || '',
+      content: initialData?.content || '',
+      category: initialData?.category || '',
+      featuredImage: initialData?.imageUrl || '',
+      tags: Array.isArray(initialData?.tags) ? initialData.tags : [],
+      published: initialData?.featured || false,
+    },
+    validationSchema: blogPostSchema,
+    onSubmit: async (formValues) => {
+      setHasAttemptedSubmit(true);
+      
+      try {
+        // If there's a new image, upload it first
+        let imageUrl = formValues.featuredImage;
+        if (imageFile) {
+          const uploadFormData = new FormData();
+          uploadFormData.append('file', imageFile);
+          
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: uploadFormData,
+          });
+          
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.error || 'Failed to upload image');
+          }
+          
+          const { secure_url } = await uploadResponse.json();
+          imageUrl = secure_url;
+        }
+
+        // Create the blog post data
+        const blogData: BlogFormData = {
+          title: formValues.title,
+          subtitle: formValues.subtitle || '',
+          content: formValues.content,
+          category: formValues.category,
+          imageUrl,
+          tags: formValues.tags || [],
+          featured: formValues.published || false,
+        };
+
+        // If editing, include the ID
+        if (initialData?.id) {
+          blogData.id = initialData.id;
+        }
+        await onSubmit(blogData);
+        
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        throw error;
+      }
+    }
+  });
 
   const handleImageUpload = (url: string, file: File) => {
-    setFormData(prev => ({
-      ...prev,
-      imageUrl: url
-    }));
+    handleChange('featuredImage')(url);
     setImageFile(file);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Custom submit handler to track attempts
+  const onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setHasAttemptedSubmit(true);
     
-    // Validate required fields
-    if (!formData.title.trim() || !formData.content.trim() || !formData.category) {
-      setError('Title, content, and category are required');
-      return;
-    }
-
-    setIsUploading(true);
-    setError('');
-
+    // Show loading toast
+    const toastId = toast.loading('Saving blog post...');
+    
     try {
-      // If there's a new image, upload it first
-      let imageUrl = formData.imageUrl;
-      if (imageFile) {
-        const uploadFormData = new FormData();
-        uploadFormData.append('file', imageFile);
-        
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: uploadFormData,
-        });
-        
-        if (!uploadResponse.ok) {
-          const errorData = await uploadResponse.json();
-          throw new Error(errorData.error || 'Failed to upload image');
-        }
-        
-        const { secure_url } = await uploadResponse.json();
-        imageUrl = secure_url;
+      await handleSubmit(e);
+      
+      toast.success(initialData?.id ? 'Blog post updated successfully!' : 'Blog post created successfully!', {
+        id: toastId,
+        duration: 3000,
+      });
+      
+      // Reset form if creating new blog
+      if (!initialData?.id) {
+        resetForm();
+        setHasAttemptedSubmit(false);
       }
-
-      // Create the blog post data
-      const blogData: BlogFormData = {
-        title: formData.title,
-        subtitle: formData.subtitle,
-        content: formData.content,
-        category: formData.category,
-        imageUrl,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        featured: formData.featured,
-      };
-
-      // If editing, include the ID
-      if (initialData?.id) {
-        blogData.id = initialData.id;
-      }
-
-      // Submit the form data
-      await onSubmit(blogData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error submitting form:', err);
-      throw err; // Re-throw to be handled by the parent component
-    } finally {
-      setIsUploading(false);
+    } catch (error) {
+      // Update to error state
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred while saving the blog post';
+      toast.error(errorMessage, {
+        id: toastId,
+        duration: 4000,
+      });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-            Title <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-            Category
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
+    <form onSubmit={onFormSubmit} className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
+      <h2 className="text-2xl font-bold mb-6">Edit Blog Post</h2>
+      
       <div>
-        <label htmlFor="subtitle" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+          Title <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          value={values.title}
+          onChange={(e) => handleChange('title')(e.target.value)}
+          placeholder="Enter blog title"
+          className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-0 focus:border-gray-400"
+        />
+        {hasAttemptedSubmit && errors.title && (
+          <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+        )}
+      </div>
+      
+      <div>
+        <label htmlFor="subtitle" className="block text-sm font-medium text-gray-700 mb-1">
           Subtitle
         </label>
         <input
           type="text"
           id="subtitle"
           name="subtitle"
-          value={formData.subtitle}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+          value={values.subtitle || ''}
+          onChange={(e) => handleChange('subtitle')(e.target.value)}
+          placeholder="Enter a short subtitle (optional)"
+          className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-0 focus:border-gray-400"
         />
+        {hasAttemptedSubmit && errors.subtitle && (
+          <p className="mt-1 text-sm text-red-600">{errors.subtitle}</p>
+        )}
       </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Featured Image <span className="text-red-500">*</span>
-        </label>
-        <ImageUpload
-          value={formData.imageUrl}
-          onChange={handleImageUpload}
-          label="Click to upload or drag and drop"
-        />
-        <p className="mt-1 text-xs text-gray-500">
-          Recommended size: 1200x630px (2:1 aspect ratio)
-        </p>
-      </div>
-
+      
       <div>
-        <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
           Content <span className="text-red-500">*</span>
         </label>
         <textarea
           id="content"
           name="content"
-          rows={10}
-          value={formData.content}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-          required
+          value={values.content}
+          onChange={(e) => handleChange('content')(e.target.value)}
+          placeholder="Write your blog content here..."
+          rows={8}
+          className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-0 focus:border-gray-400"
         />
+        {hasAttemptedSubmit && errors.content && (
+          <p className="mt-1 text-sm text-red-600">{errors.content}</p>
+        )}
       </div>
-
+      
       <div>
-        <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
-          Tags (comma separated)
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Featured Image <span className="text-red-500">*</span>
         </label>
-        <input
-          type="text"
-          id="tags"
-          name="tags"
-          value={formData.tags}
-          onChange={handleChange}
-          placeholder="e.g., react, nextjs, typescript"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-        />
+        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+          <div className="space-y-1 text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+            >
+              <path
+                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div className="flex text-sm text-gray-600">
+              <ImageUpload
+                value={values.featuredImage || ''}
+                onChange={handleImageUpload}
+                label="Upload an image"
+              />
+              <p className="pl-1">or drag and drop</p>
+            </div>
+            <p className="text-xs text-gray-500">
+              PNG, JPG, GIF up to 10MB
+            </p>
+            <p className="text-xs text-gray-400">
+              Recommended size: 1200×630px (2:1 aspect ratio)
+            </p>
+          </div>
+        </div>
+        {values.featuredImage && (
+          <div className="mt-2">
+            <img
+              src={values.featuredImage}
+              alt="Preview"
+              className="h-32 w-auto rounded-md border border-gray-300"
+            />
+          </div>
+        )}
+        {hasAttemptedSubmit && errors.featuredImage && (
+          <p className="mt-1 text-sm text-red-600">{errors.featuredImage}</p>
+        )}
       </div>
-
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+            Category <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="category"
+            name="category"
+            value={values.category}
+            onChange={(e) => handleChange('category')(e.target.value)}
+            className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-0 focus:border-gray-400"
+          >
+            <option value="">Select a category</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+          {hasAttemptedSubmit && errors.category && (
+            <p className="mt-1 text-sm text-red-600">{errors.category}</p>
+          )}
+        </div>
+        
+        <div>
+          <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">
+            Tags (comma separated)
+          </label>
+          <input
+            type="text"
+            id="tags"
+            name="tags"
+            value={Array.isArray(values.tags) ? values.tags.join(', ') : ''}
+            onChange={(e) => handleChange('tags')(e.target.value.split(',').map(tag => tag.trim()).filter(Boolean))}
+            placeholder="e.g., react, nextjs, typescript"
+            className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-0 focus:border-gray-400"
+          />
+          {hasAttemptedSubmit && errors.tags && (
+            <p className="mt-1 text-sm text-red-600">{errors.tags}</p>
+          )}
+        </div>
+      </div>
+      
       <div className="flex items-center">
         <input
-          id="featured"
-          name="featured"
+          id="published"
+          name="published"
           type="checkbox"
-          checked={formData.featured}
-          onChange={handleChange}
+          checked={values.published}
+          onChange={(e) => handleChange('published')(e.target.checked)}
           className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
-        <label htmlFor="featured" className="ml-2 block text-sm text-gray-700">
-          Feature this post
+        <label htmlFor="published" className="ml-2 block text-sm text-gray-700">
+          Publish this post
         </label>
+        {hasAttemptedSubmit && errors.published && (
+          <p className="mt-1 text-sm text-red-600">{errors.published}</p>
+        )}
       </div>
-
-      <div className="flex justify-end space-x-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          disabled={isSubmitting}
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Saving...' : 'Save Post'}
-        </button>
-      </div>
-    </form>
-  );
+    
+    <div className="pt-2 flex justify-end space-x-3">
+      <button
+        type="button"
+        onClick={() => router.push('/admin')}
+        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isSubmitting ? 'Updating...' : 'Update Blog'}
+      </button>
+    </div>
+  </form>
+);
 }

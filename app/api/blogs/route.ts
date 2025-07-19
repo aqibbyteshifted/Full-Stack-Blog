@@ -1,38 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { NextResponse, type NextRequest } from "next/server";
+import { blogPostSchema } from "@/lib/validations";
 
 const prisma = new PrismaClient();
-
-type BlogWithAuthorAndCount = {
-  id: number;
-  title: string;
-  subtitle: string | null;
-  content: string;
-  category: string;
-  status: string;
-  imageUrl: string | null;
-  readTime: number;
-  featured: boolean;
-  tags: string[];
-  slug: string;
-  views: number;
-  createdAt: Date;
-  updatedAt: Date;
-  author: {
-    id: string;
-    name: string;
-    email: string;
-    avatar: string | null;
-    role: string;
-    bio: string | null;
-    website: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-  };
-  _count: {
-    comments: number;
-  };
-};
 
 // Define the shape of the blog data we'll send to the client
 interface BlogResponse {
@@ -239,45 +210,50 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Validate required fields
-    const missingFields = [];
-    if (!data.title) missingFields.push('title');
-    if (!data.content) missingFields.push('content');
-    if (!data.category) missingFields.push('category');
+    // Validate data with Zod schema
+    const validationResult = blogPostSchema.safeParse(data);
     
-    if (missingFields.length > 0) {
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message
+      }));
+      
       return NextResponse.json(
         { 
-          error: 'Missing required fields',
-          missingFields,
-          message: 'Title, content, and category are required' 
+          error: 'Validation failed',
+          errors,
+          message: 'Please check your input and try again'
         },
         { status: 400 }
       );
     }
+    
+    // Use validated data
+    const validatedData = validationResult.data;
 
     try {
       // Create slug from title
-      const slug = data.title
+      const slug = validatedData.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
 
-      // Prepare blog data with default values
+      // Prepare blog data with default values using validated data
       const blogData = {
-        title: data.title,
-        subtitle: data.subtitle || '',
-        content: data.content,
-        excerpt: data.content.substring(0, 150) + (data.content.length > 150 ? '...' : ''),
-        category: data.category,
-        status: data.status || 'Draft', // Default to Draft instead of Published
-        imageUrl: data.imageUrl || null,
-        readTime: data.readTime || Math.ceil(data.content.split(/\s+/).length / 200),
-        featured: data.featured || false,
-        tags: Array.isArray(data.tags) ? data.tags : [],
-        slug: data.slug || slug,
+        title: validatedData.title,
+        subtitle: validatedData.subtitle || '',
+        content: validatedData.content,
+        excerpt: validatedData.excerpt || validatedData.content.substring(0, 150) + (validatedData.content.length > 150 ? '...' : ''),
+        category: validatedData.category,
+        status: 'Draft', // Always default to Draft for new blogs
+        imageUrl: validatedData.featuredImage || null,
+        readTime: Math.ceil(validatedData.content.split(/\s+/).length / 200),
+        featured: validatedData.published || false,
+        tags: validatedData.tags || [],
+        slug: slug,
         views: 0,
-        authorId: data.authorId || null, // In a real app, get this from the session
+        authorId: null, // In a real app, get this from the session
       };
 
       console.log('Creating blog with data:', JSON.stringify(blogData, null, 2));
@@ -319,7 +295,7 @@ export async function POST(req: NextRequest) {
         );
       }
       
-      throw dbError; // Re-throw for the outer catch
+      throw error; // Re-throw for the outer catch
     }
     
   } catch (error) {

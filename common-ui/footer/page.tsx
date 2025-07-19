@@ -6,7 +6,7 @@ import { FiFacebook, FiTwitter, FiYoutube, FiInstagram } from 'react-icons/fi';
 export default function Footer() {
   return (
     <footer className="bg-black text-white py-16">
-      <div className="container mx-auto px-4">
+      <div className="container w-full max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
           {/* Logo and About */}
           <div className="md:col-span-4">
