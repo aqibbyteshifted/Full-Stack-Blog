@@ -1,10 +1,8 @@
 'use client';
-
 import dynamic from 'next/dynamic';
 
-// Create a client-side only version of the NewsletterPopup
 const NewsletterPopup = dynamic(
-  () => import('./NewsletterPopup').then((mod) => mod.default),
+  () => import('@/components/newsLetter/page').then((mod) => mod.default),
   { 
     ssr: false,
     loading: () => null

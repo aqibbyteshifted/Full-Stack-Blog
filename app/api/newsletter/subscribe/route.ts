@@ -10,15 +10,9 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    // Here you would typically:
-    // 1. Validate the email address
-    // 2. Save to your database
-    // 3. Optionally, add to an email marketing service
     
     console.log('New subscription:', email);
     
-    // For now, we'll just return a success response
     return NextResponse.json(
       { message: 'Subscription successful' },
       { status: 200 }
