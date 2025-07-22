@@ -1,18 +1,41 @@
+import React from 'react';
 import { PrismaClient } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaCalendarAlt, FaClock, FaUser, FaArrowLeft } from 'react-icons/fa';
+import CommentSection from '@/components/blog/CommentSection';
 
 const prisma = new PrismaClient();
+
+// Define the expected blog post type
+interface BlogPostWithAuthor {
+  id: number;
+  title: string;
+  content: string;
+  createdAt: Date;
+  author: {
+    name: string | null;
+  } | null;
+  comments: any[];
+  tags: string[] | null;
+  imageUrl: string | null;
+  subtitle: string | null;
+  readTime: number | null;
+  category: string | null;
+}
 
 export default async function BlogPost({ params }: { params: { id: string } }) {
   // Get the blog post with author information
   const blog = await prisma.blog.findUnique({
     where: { id: Number(params.id) },
     include: {
-      author: true,
+      author: {
+        select: {
+          name: true
+        }
+      },
       comments: true
     }
   });
@@ -20,6 +43,11 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
   if (!blog) {
     notFound();
   }
+
+  // Cast to our expected type
+  const blogWithAuthor = blog as unknown as BlogPostWithAuthor;
+
+
 
   return (
     <div className="bg-white">
@@ -94,18 +122,23 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
             <div className="flex flex-wrap gap-2 justify-center">
               {blog.tags.map((tag) => (
                 <Link 
-                  key={tag} 
-                  href={`/tags/${tag.toLowerCase()}`}
+                  key={tag as string} 
+                  href={`/tags/${(tag as string).toLowerCase()}`}
                   className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                 >
-                  {tag}
+                  {tag as string}
                 </Link>
               ))}
             </div>
           </div>
         )}
       </div>
+
+      {/* Comments Section */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <CommentSection blogPostId={blogWithAuthor.id} />
       </div>
+    </div>
   );
 }
 

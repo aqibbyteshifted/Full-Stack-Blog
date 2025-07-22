@@ -47,11 +47,12 @@ model Blog {
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  blogId    Int
-  blog      Blog     @relation(fields: [blogId], references: [id])
-  name      String
-  content   String
-  status    String   // Approved/Not Approved
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  name       String
+  email      String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  blogPostId Int
+  blogPost   Blog     @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
 }
