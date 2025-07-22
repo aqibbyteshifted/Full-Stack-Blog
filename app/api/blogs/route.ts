@@ -246,7 +246,7 @@ export async function POST(req: NextRequest) {
         content: validatedData.content,
         excerpt: validatedData.excerpt || validatedData.content.substring(0, 150) + (validatedData.content.length > 150 ? '...' : ''),
         category: validatedData.category,
-        status: 'Draft', // Always default to Draft for new blogs
+        status: 'Published', // Set to Published by default so blogs show up immediately
         imageUrl: validatedData.featuredImage || null,
         readTime: Math.ceil(validatedData.content.split(/\s+/).length / 200),
         featured: validatedData.published || false,

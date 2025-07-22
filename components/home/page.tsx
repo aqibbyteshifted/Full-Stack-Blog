@@ -71,16 +71,33 @@ export default function homePage() {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/blogs`;
+        // Use relative URL to avoid CORS issues and environment variables
+        const apiUrl = '/api/blogs';
         console.log('Fetching blogs from:', apiUrl);
         const response = await fetch(apiUrl);
         if (response.ok) {
           const data = await response.json();
           console.log('Received blogs data:', data);
+          // Temporarily show all blogs for debugging
+          console.log('All blogs:', data);
           setBlogs(data);
           setFilteredBlogs(data);
         } else {
-          console.error('Failed to fetch blogs:', await response.text());
+          const errorText = await response.text();
+          console.error('Failed to fetch blogs:', errorText);
+          // Try fallback URL if the relative path fails
+          if (process.env.NEXT_PUBLIC_APP_URL) {
+            console.log('Trying fallback URL...');
+            const fallbackResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/blogs`);
+            if (fallbackResponse.ok) {
+              const fallbackData = await fallbackResponse.json();
+              const publishedBlogs = fallbackData.filter((blog: Blog) => blog.status === 'Published');
+              setBlogs(publishedBlogs);
+              setFilteredBlogs(publishedBlogs);
+            } else {
+              console.error('Fallback URL also failed:', await fallbackResponse.text());
+            }
+          }
         }
       } catch (error) {
         console.error('Error fetching blogs:', error);
@@ -192,7 +209,7 @@ export default function homePage() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {filteredBlogs.map((blog) => (
               <article key={blog.id} className="flex flex-col overflow-hidden rounded-lg shadow-lg bg-white">
-                <div className="flex-shrink-0 h-48 relative">
+                <div className="flex-shrink-0 h-[400px] relative">
                   <Image
                     src={blog.imageUrl || '/placeholder-blog.jpg'}
                     alt={blog.title}
