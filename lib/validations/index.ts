@@ -58,7 +58,7 @@ export const imageSchema = z
 
 export const blogPostSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),
-  subtitle: z.string().max(100, 'Subtitle must be at most 100 characters').optional(),
+  subtitle: z.string().max(50, 'Subtitle must be at most 50 characters').optional(),
   content: z.string().min(10, 'Content must be at least 10 characters'),
   excerpt: z.string().max(300).optional(),
   category: z.string().min(1, 'Category is required'),
