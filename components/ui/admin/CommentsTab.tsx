@@ -14,9 +14,23 @@ export default function CommentsTab() {
   const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
-    fetch("/api/comments")
-      .then((res) => res.json())
-      .then(setComments);
+    const fetchComments = async () => {
+      try {
+        const response = await fetch("/api/comments");
+        if (!response.ok) {
+          throw new Error('Failed to fetch comments');
+        }
+        const data = await response.json();
+        // Ensure we're working with an array
+        const commentsArray = Array.isArray(data) ? data : [];
+        setComments(commentsArray);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        // Optionally set an error state to show to the user
+      }
+    };
+
+    fetchComments();
   }, []);
 
 interface ApprovePayload {

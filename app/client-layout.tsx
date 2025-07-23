@@ -8,6 +8,12 @@ import { Toaster } from "react-hot-toast";
 import Footer from "@/common-ui/footer/page";
 import Header from "@/common-ui/header/page";
 import NewsletterPopup from '@/app/components/NewsletterPopupWrapper';
+import dynamic from 'next/dynamic';
+
+// Dynamically import ThemeToggle to avoid SSR issues
+const ThemeToggle = dynamic(() => import('@/components/ThemeToggle'), {
+  ssr: false,
+});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,8 +37,9 @@ export default function ClientLayout({
           >
             <NewsletterPopup />
             <Header />
-            <main className="flex-1 pt-20">
+            <main className="flex-1 pt-20 relative">
               {children}
+              <ThemeToggle />
             </main>
             <Footer />
             <Toaster

@@ -18,7 +18,7 @@ export default function AdminPage() {
   }, [tab]);
 
   return (
-    <main className="flex-1 p-8">
+    <main className="flex-1 p-4">
       {activeTab === "dashboard" && <DashboardTab />}
       {activeTab === "add" && <AddBlogTab />}
       {activeTab === "list" && <BlogListTab />}

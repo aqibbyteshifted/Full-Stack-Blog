@@ -50,11 +50,11 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
 
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-gray-900 min-h-screen">
       {/* Back Button */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900">
+          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
             <FaArrowLeft className="mr-2" />
             <span>Back to all posts</span>
           </Link>
@@ -64,15 +64,15 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
       {/* Blog Header */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
-          <span className="inline-block px-4 py-1.5 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full mb-4">
+          <span className="inline-block px-4 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-100 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
             {blog.category}
           </span>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             {blog.title}
           </h1>
           
           {/* Author and Date */}
-          <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 mb-8">
+          <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mb-8">
             <div className="flex items-center">
               <FaUser className="mr-1.5" />
               <span>{blog.author?.name || 'Admin'}</span>
@@ -94,7 +94,7 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
 
         {/* Featured Image */}
         {blog.imageUrl && (
-          <div className="mb-10 rounded-lg overflow-hidden shadow-lg">
+          <div className="mb-10 rounded-lg overflow-hidden shadow-lg dark:shadow-gray-800/50">
             <Image
               src={blog.imageUrl}
               alt={blog.title}
@@ -107,9 +107,9 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
         )}
 
         {/* Blog Content */}
-        <div className="prose prose-lg max-w-none mx-auto">
+        <div className="prose prose-lg dark:prose-invert max-w-none mx-auto prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-a:text-blue-600 dark:prose-a:text-blue-400 hover:prose-a:text-blue-800 dark:hover:prose-a:text-blue-300 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-300 prose-code:text-gray-800 dark:prose-code:text-gray-200 prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-pre:rounded-lg">
           {blog.subtitle && (
-            <p className="text-xl text-gray-600 mb-8 italic">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 italic">
               {blog.subtitle}
             </p>
           )}
@@ -118,13 +118,13 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
 
         {/* Tags */}
         {blog.tags && blog.tags.length > 0 && (
-          <div className="mt-16 pt-8 border-t border-gray-200">
+          <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700">
             <div className="flex flex-wrap gap-2 justify-center">
               {blog.tags.map((tag) => (
                 <Link 
                   key={tag as string} 
                   href={`/tags/${(tag as string).toLowerCase()}`}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   {tag as string}
                 </Link>

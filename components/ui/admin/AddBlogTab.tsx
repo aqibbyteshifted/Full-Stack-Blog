@@ -120,13 +120,13 @@ export default function AddBlogTab() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <Toaster position="top-center" />
-      <form onSubmit={onFormSubmit} className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
-        <h2 className="text-2xl font-bold mb-6">Create New Blog Post</h2>
+      <form onSubmit={onFormSubmit} className="max-w-4xl mx-auto p-2 bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Create New Blog Post</h2>
         
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -135,7 +135,7 @@ export default function AddBlogTab() {
             value={values.title}
             onChange={(e) => handleChange('title')(e.target.value)}
             placeholder="Enter blog title"
-            className="w-full border border-gray-300 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none"
+            className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
           {hasAttemptedSubmit && errors.title && (
             <p className="mt-1 text-sm text-red-600">{errors.title}</p>
@@ -143,7 +143,7 @@ export default function AddBlogTab() {
         </div>
         
         <div>
-          <label htmlFor="subtitle" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="subtitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Subtitle
           </label>
           <input
@@ -152,7 +152,7 @@ export default function AddBlogTab() {
             value={values.subtitle || ''}
             onChange={(e) => handleChange('subtitle')(e.target.value)}
             placeholder="Enter a short subtitle (optional)"
-            className="w-full border border-gray-300 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none"
+            className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
           {hasAttemptedSubmit && errors.subtitle && (
             <p className="mt-1 text-sm text-red-600">{errors.subtitle}</p>
@@ -161,7 +161,7 @@ export default function AddBlogTab() {
         
         <div>
           <div className="flex justify-between items-center mb-1">
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Content <span className="text-red-500">*</span>
             </label>
             <button
@@ -196,7 +196,7 @@ export default function AddBlogTab() {
             onChange={(e) => handleChange('content')(e.target.value)}
             placeholder="Write your blog content here..."
             rows={8}
-            className="w-full border border-gray-300 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none"
+            className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
           {hasAttemptedSubmit && errors.content && (
             <p className="mt-1 text-sm text-red-600">{errors.content}</p>
@@ -207,7 +207,7 @@ export default function AddBlogTab() {
         <label htmlFor="featuredImage" className="block text-sm font-medium text-gray-700 mb-1">
           Featured Image <span className="text-red-500">*</span>
         </label>
-        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
           <div className="space-y-1 text-center">
             <svg
               className="mx-auto h-12 w-12 text-gray-400"
@@ -223,10 +223,10 @@ export default function AddBlogTab() {
                 strokeLinejoin="round"
               />
             </svg>
-            <div className="flex text-sm text-gray-600">
+            <div className="flex text-sm text-gray-600 dark:text-gray-300">
               <label
                 htmlFor="featuredImage"
-                className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                className="relative cursor-pointer rounded-md font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
               >
                 <span>Upload an image</span>
                 <input
@@ -249,12 +249,12 @@ export default function AddBlogTab() {
                   }}
                 />
               </label>
-              <p className="pl-1">or drag and drop</p>
+              <p className="pl-1 dark:text-gray-400">or drag and drop</p>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               PNG, JPG, GIF up to 10MB
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 dark:text-gray-500">
               Recommended size: 1200×630px (2:1 aspect ratio)
             </p>
           </div>
@@ -264,7 +264,7 @@ export default function AddBlogTab() {
             <img
               src={values.featuredImage}
               alt="Preview"
-              className="h-32 w-auto rounded-md border border-gray-300"
+              className="h-32 w-auto rounded-md border border-gray-300 dark:border-gray-600"
             />
           </div>
         )}
@@ -275,7 +275,7 @@ export default function AddBlogTab() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Category <span className="text-red-500">*</span>
           </label>
           <input
@@ -284,7 +284,7 @@ export default function AddBlogTab() {
             value={values.category}
             onChange={(e) => handleChange('category')(e.target.value)}
             placeholder="e.g., Technology, Lifestyle, Food"
-            className="w-full border border-gray-300 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none"
+            className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
           {hasAttemptedSubmit && errors.category && (
             <p className="mt-1 text-sm text-red-600">{errors.category}</p>
@@ -292,7 +292,7 @@ export default function AddBlogTab() {
         </div>
         
         <div>
-          <label htmlFor="published" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="published" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Status
           </label>
           <select
@@ -300,7 +300,7 @@ export default function AddBlogTab() {
             name="published"
             value={values.published ? 'true' : 'false'}
             onChange={(e) => handleChange('published')(e.target.value === 'true')}
-            className="w-full border border-gray-300 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none"
+            className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded outline-none focus:outline-none focus:ring-0 focus:ring-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             <option value="false">Draft</option>
             <option value="true">Published</option>

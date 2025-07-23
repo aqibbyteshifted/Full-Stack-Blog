@@ -74,7 +74,7 @@ const ContactForm = () => {
               {...register('name', { required: 'Name is required' })}
               className={`block w-full px-4 py-2 border ${
                 errors.name ? 'border-red-300' : 'border-gray-300'
-              } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
+              } rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none`}
             />
             {errors.name && (
               <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -99,7 +99,7 @@ const ContactForm = () => {
               })}
               className={`block w-full px-4 py-2 border ${
                 errors.email ? 'border-red-300' : 'border-gray-300'
-              } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
+              } rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none`}
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -116,7 +116,7 @@ const ContactForm = () => {
               id="address"
               type="text"
               {...register('address')}
-              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none"
             />
           </div>
         </div>
@@ -130,7 +130,7 @@ const ContactForm = () => {
               id="phone"
               type="tel"
               {...register('phone')}
-              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none"
             />
           </div>
         </div>
@@ -147,7 +147,7 @@ const ContactForm = () => {
             {...register('subject', { required: 'Subject is required' })}
             className={`block w-full px-4 py-2 border ${
               errors.subject ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
+            } rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none`}
           />
           {errors.subject && (
             <p className="mt-1 text-sm text-red-600">{errors.subject.message}</p>
@@ -166,7 +166,7 @@ const ContactForm = () => {
             {...register('message', { required: 'Message is required' })}
             className={`block w-full px-4 py-2 border ${
               errors.message ? 'border-red-300' : 'border-gray-300'
-            } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
+            } rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none`}
           />
           {errors.message && (
             <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>
