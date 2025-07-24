@@ -11,6 +11,8 @@
   "dependencies": {
     "@clerk/nextjs": "^6.25.2",
     "@clerk/themes": "^2.3.3",
+    "@google/generative-ai": "^0.24.1",
+    "@hookform/resolvers": "^5.1.1",
     "@prisma/client": "^6.12.0",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-separator": "^1.1.7",
@@ -31,6 +33,7 @@
     "prisma": "^6.12.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.60.0",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "superjson": "^2.2.2",

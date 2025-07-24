@@ -62,6 +62,7 @@ export const blogPostSchema = z.object({
   content: z.string().min(10, 'Content must be at least 10 characters'),
   excerpt: z.string().max(300).optional(),
   category: z.string().min(1, 'Category is required'),
+  slug: z.string().optional(),
   featuredImage: z.string().url('Invalid image URL').optional(),
   tags: z.array(z.string()).max(10, 'Maximum 10 tags allowed').optional(),
   published: z.boolean().default(false),
