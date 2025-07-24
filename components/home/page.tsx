@@ -80,8 +80,21 @@ export default function homePage() {
         if (response.ok) {
           const data = await response.json();
           console.log('Received blogs data:', data);
-          // Temporarily show all blogs for debugging
-          console.log('All blogs:', data);
+          
+          // Log the first blog's structure to verify fields
+          if (data.length > 0) {
+            console.log('First blog object structure:', {
+              id: data[0].id,
+              title: data[0].title,
+              status: data[0].status, // Check if status exists
+              category: data[0].category,
+              author: data[0].author,
+              // Add other important fields
+            });
+          }
+          
+          // Show all blogs for now
+          console.log('Total blogs received:', data.length);
           setBlogs(data);
           setFilteredBlogs(data);
         } else {
