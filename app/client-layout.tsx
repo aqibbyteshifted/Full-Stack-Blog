@@ -26,15 +26,12 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={`${inter.variable} font-sans min-h-screen flex flex-col bg-white dark:bg-gray-900`}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
             <NewsletterPopup />
             <Header />
             <main className="flex-1 pt-20 relative">
@@ -60,8 +57,5 @@ export default function ClientLayout({
               }}
             />
           </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
   );
 }

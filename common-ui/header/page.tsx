@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { FiMoon, FiSun, FiMenu, FiX } from 'react-icons/fi';
 import { useTheme } from 'next-themes';
+import { SignedIn, SignedOut, UserButton, SignInButton, useUser } from '@clerk/nextjs';
 
 export default function Header() {
   const [mounted, setMounted] = useState(false);
@@ -76,13 +77,20 @@ export default function Header() {
                       <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
                     </button>
 
-                    {/* User Profile */}
-                    <div className="flex items-center space-x-2">
-                      <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                        U
+                    {/* User Profile (Clerk) */}
+                    <SignedIn>
+                      <div className="flex items-center space-x-2">
+                        <UserButton afterSignOutUrl="/" />
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                          {useUser().user?.fullName || useUser().user?.username || useUser().user?.emailAddresses[0].emailAddress}
+                        </span>
                       </div>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Admin</span>
-                    </div>
+                    </SignedIn>
+                    <SignedOut>
+                      <SignInButton mode="modal">
+                        <button className="px-4 py-2 rounded bg-blue-500 text-white">Sign In</button>
+                      </SignInButton>
+                    </SignedOut>
                   </div>
                 </div>
               </div>
