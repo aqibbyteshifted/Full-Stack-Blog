@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { z, type ZodTypeAny } from 'zod';
+import { z, type ZodType, type ZodTypeDef } from 'zod';
+
+type FormFieldValue = string | number | boolean | File | null | undefined | string[];
+
+type FormValues = {
+  [key: string]: FormFieldValue | FormValues;
+};
 
 type FormState<T> = {
   values: T;
@@ -9,13 +15,13 @@ type FormState<T> = {
   isSubmitting: boolean;
 };
 
-type FormOptions<T> = {
+type FormOptions<T extends FormValues> = {
   initialValues: T;
-  validationSchema?: ZodTypeAny;
+  validationSchema?: ZodType<T, ZodTypeDef, T>;
   onSubmit: (values: T) => Promise<void> | void;
 };
 
-export function useForm<T extends Record<string, any>>({
+export function useForm<T extends FormValues>({
   initialValues,
   validationSchema,
   onSubmit,

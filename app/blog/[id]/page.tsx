@@ -10,6 +10,17 @@ import CommentSection from '@/components/blog/CommentSection';
 const prisma = new PrismaClient();
 
 // Define the expected blog post type
+interface Comment {
+  id: number;
+  content: string;
+  author: {
+    name: string | null;
+    email: string | null;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 interface BlogPostWithAuthor {
   id: number;
   title: string;
@@ -18,7 +29,7 @@ interface BlogPostWithAuthor {
   author: {
     name: string | null;
   } | null;
-  comments: any[];
+  comments: Comment[];
   tags: string[] | null;
   imageUrl: string | null;
   subtitle: string | null;
@@ -26,17 +37,20 @@ interface BlogPostWithAuthor {
   category: string | null;
 }
 
-export default async function BlogPost({ params }: { params: { id: string } }) {
+export default async function BlogPost({ params }: { params: Promise<{ id: string }> }) {
+  // Await the params to get the actual values
+  const { id } = await params;
+  
   // Get the blog post with author information
   const blog = await prisma.blog.findUnique({
-    where: { id: Number(params.id) },
+    where: { id: Number(id) },
     include: {
       author: {
         select: {
           name: true
         }
       },
-      comments: true
+      Comment: true
     }
   });
 
@@ -46,8 +60,6 @@ export default async function BlogPost({ params }: { params: { id: string } }) {
 
   // Cast to our expected type
   const blogWithAuthor = blog as unknown as BlogPostWithAuthor;
-
-
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">

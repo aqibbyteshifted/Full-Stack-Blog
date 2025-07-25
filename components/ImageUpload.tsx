@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { FiUpload, FiX } from 'react-icons/fi';
+import { FiX } from 'react-icons/fi';
+import Image from 'next/image';
 
 interface ImageUploadProps {
   value?: string;
@@ -73,11 +74,15 @@ export default function ImageUpload({
       {value ? (
         <div className="relative group">
           <div className="relative h-48 w-full rounded-md overflow-hidden">
-            <img
-              src={value}
-              alt="Preview"
-              className="h-full w-full object-cover"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={value}
+                alt="Preview"
+                fill
+                className="object-cover rounded-md"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            </div>
             {!disabled && (
               <button
                 type="button"

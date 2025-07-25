@@ -16,7 +16,14 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
-    const result = await new Promise((resolve, reject) => {
+    // Define a type for the Cloudinary upload result
+    type CloudinaryUploadResult = {
+      secure_url: string;
+      public_id: string;
+      [key: string]: string;
+    };
+
+    const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
           {
@@ -28,15 +35,15 @@ export async function POST(request: Request) {
               reject(error);
               return;
             }
-            resolve(result);
+            resolve(result as CloudinaryUploadResult);
           }
         )
         .end(buffer);
     });
 
     return NextResponse.json({
-      url: (result as any).secure_url,
-      publicId: (result as any).public_id,
+      url: result.secure_url,
+      publicId: result.public_id,
     });
   } catch (error) {
     console.error('Upload error:', error);

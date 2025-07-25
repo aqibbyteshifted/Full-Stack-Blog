@@ -25,10 +25,6 @@ export function useKeyboardShortcut(
     enabled = true,
   } = options;
 
-  const combinations = Array.isArray(keyCombination)
-    ? keyCombination
-    : [keyCombination];
-
   const callbackRef = useRef<Callback>(callback);
   callbackRef.current = callback;
 
@@ -36,7 +32,11 @@ export function useKeyboardShortcut(
     (event: KeyboardEvent) => {
       if (!enabled) return;
 
-      const matchedCombination = combinations.some((combo) => {
+      const currentCombinations = Array.isArray(keyCombination)
+        ? keyCombination
+        : [keyCombination];
+
+      const matchedCombination = currentCombinations.some((combo) => {
         return (
           event.key.toLowerCase() === combo.key.toLowerCase() &&
           (combo.ctrl ?? false) === (event.ctrlKey || event.metaKey) &&
@@ -55,7 +55,7 @@ export function useKeyboardShortcut(
         callbackRef.current(event);
       }
     },
-    [combinations, enabled, preventDefault, stopPropagation]
+    [keyCombination, enabled, preventDefault, stopPropagation]
   );
 
   useEffect(() => {

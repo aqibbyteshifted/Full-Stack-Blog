@@ -48,7 +48,7 @@ const ContactForm = () => {
         </div>
         <h3 className="mt-3 text-lg font-medium text-gray-900">Message sent successfully!</h3>
         <p className="mt-2 text-sm text-gray-500">
-          Thank you for contacting us. We'll get back to you soon.
+          Thank you for contacting us. We&apos;ll get back to you soon.
         </p>
         <button
           onClick={() => setIsSubmitted(false)}

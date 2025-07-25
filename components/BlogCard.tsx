@@ -20,7 +20,6 @@ export default function BlogCard({
   id,
   title,
   subtitle,
-  excerpt,
   category,
   date,
   imageUrl,

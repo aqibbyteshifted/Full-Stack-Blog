@@ -1,6 +1,6 @@
-import { clsx, type ClassValue } from 'clsx';
+import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { type ClassNameValue } from 'tailwind-merge';
+import { ClassValue } from 'clsx';
 
 /**
  * Combines multiple class names and merges Tailwind CSS classes
@@ -59,12 +59,12 @@ export function generateId(prefix = 'id'): string {
 /**
  * Debounce a function
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
-  return function (this: any, ...args: Parameters<T>): void {
+  return function (this: unknown, ...args: Parameters<T>): void {
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(this, args), wait);
   };

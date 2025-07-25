@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 
 // Initialize the Google Generative AI client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 // Add this helper function to handle the response safely
-async function getGeneratedContent(model: any, prompt: string) {
+async function getGeneratedContent(model: GenerativeModel, prompt: string): Promise<string> {
     try {
         const result = await model.generateContent(prompt);
         const response = await result.response;

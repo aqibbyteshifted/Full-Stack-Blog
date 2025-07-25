@@ -8,7 +8,7 @@ export default function BlogListTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Published' | 'Unpublished'>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -38,6 +38,8 @@ export default function BlogListTab() {
     createdAt: string;
     updatedAt: string;
   }
+
+  type StatusFilter = 'all' | 'Published' | 'Unpublished';
 
   const handleView = (id: number): void => {
     // Navigate to the blog post page
@@ -184,7 +186,7 @@ export default function BlogListTab() {
             <select
               className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 outline-none focus:outline-none focus:ring-0 focus:ring-none sm:text-sm rounded-md"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
             >
               <option value="all">All Status</option>
               <option value="Published">Published</option>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FiSearch, FiFilter, FiClock, FiCalendar, FiEye, FiMessageSquare } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiEye, FiMessageSquare } from 'react-icons/fi';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -61,12 +61,13 @@ const sortOptions = [
   { id: 'popular', name: 'Most Popular' },
 ];
 
-export default function homePage() {
+export default function HomePage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
+  type SortOption = 'newest' | 'oldest' | 'popular';
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -154,7 +155,7 @@ export default function homePage() {
           return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         case 'popular':
           // Assuming we have a 'views' field for popularity
-          return (b as any).views - (a as any).views || 0;
+          return (b.views || 0) - (a.views || 0);
         default:
           return 0;
       }
@@ -246,7 +247,7 @@ export default function homePage() {
                 <select
                   className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:outline-none focus:ring-0 focus:ring-none text-sm"
                   value={sortBy}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as SortOption)}
                 >
                   {sortOptions.map((option) => (
                     <option key={option.id} value={option.id}>

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Image from "next/image";
 import { useForm } from "@/lib/hooks/use-form";
 import { blogPostSchema } from "@/lib/validations";
 import toast, { Toaster } from 'react-hot-toast';
@@ -40,7 +41,7 @@ export default function AddBlogTab() {
       if (!response.ok) {
         // Handle validation errors from server
         if (data.errors) {
-          const errorMessage = `Validation failed: ${data.errors.map((e: any) => e.message).join(', ')}`;
+          const errorMessage = `Validation failed: ${data.errors.map((e: { message: string }) => e.message).join(', ')}`;
           toast.error(errorMessage, {
             duration: 5000,
             position: 'top-center',
@@ -261,11 +262,15 @@ export default function AddBlogTab() {
         </div>
         {values.featuredImage && (
           <div className="mt-2">
-            <img
-              src={values.featuredImage}
-              alt="Preview"
-              className="h-32 w-auto rounded-md border border-gray-300 dark:border-gray-600"
-            />
+            <div className="relative h-32 w-full">
+              <Image
+                src={values.featuredImage}
+                alt="Preview"
+                fill
+                style={{ objectFit: 'contain' }}
+                className="rounded-md border border-gray-300 dark:border-gray-600"
+              />
+            </div>
           </div>
         )}
         {hasAttemptedSubmit && errors.featuredImage && (

@@ -6,9 +6,9 @@ import AddBlogTab from "@/components/ui/admin/AddBlogTab";
 import BlogListTab from "@/components/ui/admin/BlogListTab";
 import CommentsTab from "@/components/ui/admin/CommentsTab";
 
-export default function AdminPage() {
+function AdminPageContent() {
   const searchParams = useSearchParams();
-  const tab = searchParams.get('tab');
+  const tab = searchParams?.get('tab');
   const [activeTab, setActiveTab] = useState(tab || "dashboard");
 
   useEffect(() => {
@@ -24,5 +24,13 @@ export default function AdminPage() {
       {activeTab === "list" && <BlogListTab />}
       {activeTab === "comments" && <CommentsTab />}
     </main>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <AdminPageContent />
+    </React.Suspense>
   );
 }
