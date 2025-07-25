@@ -2,8 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { NextResponse, type NextRequest } from "next/server";
 import { blogPostSchema } from "@/lib/validations";
-import { z } from "zod";
-
 const prisma = new PrismaClient();
 
 // Types
@@ -294,8 +292,19 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const data = await req.json();
-    const validationResult = blogPostSchema.partial().safeParse(data);
+    const body = await req.json();
+    // Extract update data while ignoring the id from the body
+    // Remove id from body since we already have it from URL params
+    const { id: _ignoredId, ...updateData } = body as { id?: number; [key: string]: unknown };
+    // Verify that the ID in the URL matches the ID in the body for safety
+    if (_ignoredId && _ignoredId !== id) {
+      return NextResponse.json(
+        { error: 'ID in URL does not match ID in request body' },
+        { status: 400 }
+      );
+    }
+
+    const validationResult = blogPostSchema.partial().safeParse(updateData);
     
     if (!validationResult.success) {
       return NextResponse.json(
@@ -308,37 +317,27 @@ export async function PATCH(req: NextRequest) {
     }
 
     const validatedData = validationResult.data;
-    const updateData: any = { ...validatedData };
+    const updatePayload: Record<string, unknown> = { ...validatedData };
 
     if (validatedData.title && !validatedData.slug) {
-      updateData.slug = createSlug(validatedData.title);
+      updatePayload.slug = createSlug(validatedData.title);
     }
 
     if (validatedData.content) {
-      updateData.readTime = calculateReadTime(validatedData.content);
+      updatePayload.readTime = calculateReadTime(validatedData.content);
       if (!validatedData.excerpt) {
-        updateData.excerpt = createExcerpt(validatedData.content);
+        updatePayload.excerpt = createExcerpt(validatedData.content);
       }
     }
 
     const updatedBlog = await prisma.blog.update({
       where: { id },
-      data: updateData,
+      data: updatePayload,
       include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true,
-            bio: true,
-            website: true,
-            createdAt: true,
-            updatedAt: true
-          }
-        },
-        _count: { select: { Comment: true } }
+        author: true,
+        _count: {
+          select: { Comment: true }
+        }
       }
     });
 

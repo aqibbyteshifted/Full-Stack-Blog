@@ -1,12 +1,12 @@
 import { initTRPC } from '@trpc/server';
-import { type NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 import superjson from 'superjson';
 
-type CreateContextOptions = {
-  headers: Headers;
+type Context = {
+  req?: Request;
 };
 
-const t = initTRPC.context<typeof createTRPCContext>().create({
+const t = initTRPC.context<Context>().create({
   transformer: superjson,
   errorFormatter({ shape }) {
     return shape;

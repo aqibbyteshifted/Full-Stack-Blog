@@ -1,11 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import BlogForm, { BlogFormData } from '@/components/BlogForm';
 
-export default function EditBlogPage({ params }: { params: { id: string } }) {
+// This is a client component, so we'll use useParams hook for type safety
+export default function EditBlogPage() {
   const router = useRouter();
+  const params = useParams();
+  
+  // Safely extract the ID from params with type assertion
+  const id = params?.id ? (Array.isArray(params.id) ? params.id[0] : params.id) : '';
+  
+  // State management
   const [initialData, setInitialData] = useState<BlogFormData>({
     title: '',
     subtitle: '',
@@ -15,17 +22,27 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
     tags: [],
     featured: false,
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
+  // Fetch blog data when component mounts or ID changes
   useEffect(() => {
     const fetchBlog = async () => {
+      if (!id) {
+        router.push('/admin/blog');
+        return;
+      }
+
       try {
-        const response = await fetch(`/api/blogs/${params.id}`);
+        setIsLoading(true);
+        const response = await fetch(`/api/blogs/${id}`);
+        
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Failed to fetch blog');
         }
+        
         const data = await response.json();
         
         setInitialData({
@@ -45,64 +62,52 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
       }
     };
 
-    if (params.id) {
-      fetchBlog();
-    } else {
-      setIsLoading(false);
-      setError('No blog ID provided');
-    }
-  }, [params.id]);
+    fetchBlog();
+  }, [id, router]);
 
   const handleSubmit = async (data: BlogFormData) => {
+    if (!id) {
+      setError('Invalid blog ID');
+      return;
+    }
+
     try {
       setIsLoading(true);
-      
-      const response = await fetch(`/api/blogs/${params.id}`, {
-        method: 'PATCH',
+      const response = await fetch(`/api/blogs/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...data,
-          status: 'published',
-        }),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to update blog');
       }
-      
-      // Show success message and redirect
-      alert('Blog updated successfully!');
-      router.push('/admin');
+
+      router.push('/admin/blog');
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update blog');
       console.error('Error:', err);
-      throw err; // Re-throw to be handled by the form
     } finally {
       setIsLoading(false);
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <div className="text-red-500 text-center">
-          <p className="text-xl font-semibold">Error loading blog post</p>
-          <p className="mt-2">{error}</p>
+          <p className="text-xl font-semibold mb-4">Error: {error}</p>
           <button
-            onClick={() => router.push('/admin')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            onClick={() => router.push('/admin/blog')}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Back to Dashboard
           </button>

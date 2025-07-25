@@ -10,10 +10,10 @@ const navItems = [
   { name: 'Comments', href: '/admin?tab=comments', tab: 'comments', icon: '💬' },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState(false);
   const searchParams = useSearchParams();
-  const currentTab = searchParams.get('tab') || 'dashboard';
+  const currentTab = searchParams?.get('tab') || 'dashboard';
 
   // Check if mobile view
   useEffect(() => {
@@ -80,5 +80,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </React.Suspense>
   );
 }

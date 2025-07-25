@@ -2,13 +2,23 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import BlogForm, { BlogFormData } from '@/components/BlogForm';
+import BlogForm from '@/components/BlogForm';
 
 export default function NewBlogPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (data: any) => {
+  interface BlogFormData {
+    title: string;
+    subtitle: string;
+    content: string;
+    category: string;
+    imageUrl: string;
+    tags: string[];
+    featured: boolean;
+  }
+
+  const handleSubmit = async (data: BlogFormData) => {
     try {
       setIsSubmitting(true);
       const response = await fetch('/api/blogs', {

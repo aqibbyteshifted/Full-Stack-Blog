@@ -8,14 +8,14 @@ type ApiResponse<T> = {
   loading: boolean;
 };
 
-type ApiRequestOptions = {
+type ApiRequestOptions<T = unknown> = {
   method?: HttpMethod;
   headers?: Record<string, string>;
-  body?: any;
+  body?: T;
   skip?: boolean;
 };
 
-export function useApi<T = any>(endpoint: string) {
+export function useApi<T = unknown>(endpoint: string) {
   const [state, setState] = useState<ApiResponse<T>>({
     data: null,
     error: null,
@@ -79,19 +79,19 @@ export function useApi<T = any>(endpoint: string) {
   );
 
   const post = useCallback(
-    (body: any, options?: Omit<ApiRequestOptions, 'method' | 'body'>) =>
+    <B = unknown>(body: B, options?: Omit<ApiRequestOptions<B>, 'method' | 'body'>) =>
       fetchData({ ...options, method: 'POST', body }),
     [fetchData]
   );
 
   const put = useCallback(
-    (body: any, options?: Omit<ApiRequestOptions, 'method' | 'body'>) =>
+    <B = unknown>(body: B, options?: Omit<ApiRequestOptions<B>, 'method' | 'body'>) =>
       fetchData({ ...options, method: 'PUT', body }),
     [fetchData]
   );
 
   const patch = useCallback(
-    (body: any, options?: Omit<ApiRequestOptions, 'method' | 'body'>) =>
+    <B = unknown>(body: B, options?: Omit<ApiRequestOptions<B>, 'method' | 'body'>) =>
       fetchData({ ...options, method: 'PATCH', body }),
     [fetchData]
   );

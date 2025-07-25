@@ -106,7 +106,7 @@ export default function NewsletterPopup() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Thank You for Subscribing!</h3>
-            <p className="text-gray-600 mb-6">You've been added to our newsletter list.</p>
+            <p className="text-gray-600 mb-6">You&apos;ve been added to our newsletter list.</p>
             <button
               onClick={() => setIsOpen(false)}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"

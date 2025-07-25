@@ -1,6 +1,5 @@
 'use client';
 
-import { type AppType } from 'next/app';
 import { type NextPage } from 'next';
 import { type ReactElement, type ReactNode, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
@@ -11,7 +10,6 @@ import { httpBatchLink } from '@trpc/client';
 import { api } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import superjson from 'superjson';
-
 import '@/styles/globals.css';
 
 type NextPageWithLayout = NextPage & {
@@ -20,7 +18,7 @@ type NextPageWithLayout = NextPage & {
 
 type AppPropsWithLayout = {
   Component: NextPageWithLayout;
-  pageProps: any;
+  pageProps: Record<string, unknown>;
 };
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {

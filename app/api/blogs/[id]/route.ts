@@ -14,10 +14,11 @@ function validateBlogId(id: string) {
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id, error, status } = validateBlogId(params.id);
+    const resolvedParams = await params;
+    const { id, error, status } = validateBlogId(resolvedParams.id);
     if (error) {
       return NextResponse.json({ error }, { status: status || 400 });
     }
@@ -45,10 +46,11 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id, error, status } = validateBlogId(params.id);
+    const resolvedParams = await params;
+    const { id, error, status } = validateBlogId(resolvedParams.id);
     if (error) {
       return NextResponse.json({ error }, { status: status || 400 });
     }

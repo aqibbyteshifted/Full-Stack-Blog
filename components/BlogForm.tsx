@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Image from 'next/image';
 import { useForm } from '@/lib/hooks/use-form';
-import { blogPostSchema } from '@/lib/validations';
+import * as z from 'zod';
 import toast from 'react-hot-toast';
 import ImageUpload from './ImageUpload';
-
+import { useRouter } from 'next/navigation';
 export interface BlogFormData {
   id?: number;
   title: string;
@@ -17,6 +17,17 @@ export interface BlogFormData {
   tags: string[];
   featured: boolean;
 }
+
+// Define the validation schema
+const blogPostSchema = z.object({
+  title: z.string().min(5, 'Title must be at least 5 characters'),
+  content: z.string().min(10, 'Content must be at least 10 characters'),
+  category: z.string().min(1, 'Category is required'),
+  published: z.boolean().default(false),
+  subtitle: z.string().optional(),
+  featuredImage: z.string().optional(),
+  tags: z.array(z.string()).default([])
+});
 
 interface BlogFormProps {
   initialData?: Partial<BlogFormData>;
@@ -40,16 +51,14 @@ export default function BlogForm({
   onSubmit,
   isSubmitting = false 
 }: BlogFormProps) {
+  const router = useRouter();
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const router = useRouter();
-
   const {
     values,
     errors,
     handleChange,
     handleSubmit,
-    isSubmitting: formIsSubmitting,
     resetForm
   } = useForm({
     initialValues: {
@@ -92,7 +101,7 @@ export default function BlogForm({
           subtitle: formValues.subtitle || '',
           content: formValues.content,
           category: formValues.category,
-          imageUrl,
+          imageUrl: imageUrl || '',
           tags: formValues.tags || [],
           featured: formValues.published || false,
         };
@@ -242,11 +251,14 @@ export default function BlogForm({
         </div>
         {values.featuredImage && (
           <div className="mt-2">
-            <img
-              src={values.featuredImage}
-              alt="Preview"
-              className="h-32 w-auto rounded-md border border-gray-300"
-            />
+            <div className="relative h-32 w-full">
+              <Image
+                src={values.featuredImage}
+                alt="Preview"
+                fill
+                className="rounded-md border border-gray-300 object-contain"
+              />
+            </div>
           </div>
         )}
         {hasAttemptedSubmit && errors.featuredImage && (
