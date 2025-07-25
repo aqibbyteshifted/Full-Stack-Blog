@@ -102,7 +102,7 @@ const formatAuthor = (author: Author | null) => {
 export async function GET() {
   try {
     console.log('Fetching all blogs...');
-    
+
     const blogs = await prisma.blog.findMany({
       include: {
         author: true,
@@ -147,7 +147,7 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching blogs:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to fetch blogs',
         message: error instanceof Error ? error.message : 'Unknown error'
       },
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
     if (!validationResult.success) {
       console.log('Validation errors:', validationResult.error.issues);
       return NextResponse.json(
-        { 
+        {
           error: 'Validation failed',
           issues: validationResult.error.issues,
           message: 'Please check your input and try again'
@@ -186,7 +186,11 @@ export async function POST(req: NextRequest) {
 
     const validatedData = validationResult.data;
     const slug = createSlug(validatedData.title);
+    console.log('Checking for existing slug:', slug);
+
     const existingBlog = await prisma.blog.findFirst({ where: { slug } });
+    console.log('Existing blog check result:', existingBlog);
+
     const finalSlug = existingBlog ? `${slug}-${Date.now()}` : slug;
 
     const blogData = {
@@ -245,7 +249,7 @@ export async function POST(req: NextRequest) {
       }
     }
     return NextResponse.json(
-      { error: 'Failed to create blog' },
+      { error: 'Failed to create blog', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   } finally {
@@ -289,7 +293,7 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     // Extract update data while ignoring the id from the body
     // Remove id from body since we already have it from URL params
-    const { id: _ignoredId, ...updateData } = body as { id?: number; [key: string]: unknown };
+    const { id: _ignoredId, ...updateData } = body as { id?: number;[key: string]: unknown };
     // Verify that the ID in the URL matches the ID in the body for safety
     if (_ignoredId && _ignoredId !== id) {
       return NextResponse.json(
@@ -299,10 +303,10 @@ export async function PATCH(req: NextRequest) {
     }
 
     const validationResult = blogPostSchema.partial().safeParse(updateData);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Validation failed',
           issues: validationResult.error.issues
         },
@@ -343,7 +347,7 @@ export async function PATCH(req: NextRequest) {
 
   } catch (error) {
     console.error('Error updating blog:', error);
-    
+
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {
         return NextResponse.json(

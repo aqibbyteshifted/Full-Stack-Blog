@@ -11,7 +11,11 @@ const commentSchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, content, blogId } = commentSchema.parse(body);
+    const normalizedBody = {
+      ...body,
+      blogId: body.blogId ?? body.blogPostId,
+    };
+    const { name, content, blogId } = commentSchema.parse(normalizedBody);
 
     const comment = await prisma.comment.create({
       data: {
@@ -25,7 +29,7 @@ export async function POST(request: Request) {
     return NextResponse.json(comment);
   } catch (error) {
     console.error('Error creating comment:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid input', details: error.errors },
@@ -53,7 +57,7 @@ export async function GET(request: Request) {
     }
 
     const blogId = parseInt(blogIdParam, 10);
-    
+
     if (isNaN(blogId) || blogId <= 0) {
       return NextResponse.json(
         { error: 'Invalid blogId. Must be a positive number.' },
