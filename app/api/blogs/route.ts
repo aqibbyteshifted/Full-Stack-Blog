@@ -168,18 +168,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let data;
-    try {
-      data = await req.json();
-    } catch {
-      return NextResponse.json(
-        { error: 'Invalid JSON in request body' },
-        { status: 400 }
-      );
-    }
+    const data = await req.json();
+    console.log('Received data:', data);
 
     const validationResult = blogPostSchema.safeParse(data);
     if (!validationResult.success) {
+      console.log('Validation errors:', validationResult.error.issues);
       return NextResponse.json(
         { 
           error: 'Validation failed',
@@ -192,8 +186,6 @@ export async function POST(req: NextRequest) {
 
     const validatedData = validationResult.data;
     const slug = createSlug(validatedData.title);
-    
-    // Check for existing slug
     const existingBlog = await prisma.blog.findFirst({ where: { slug } });
     const finalSlug = existingBlog ? `${slug}-${Date.now()}` : slug;
 
@@ -211,6 +203,8 @@ export async function POST(req: NextRequest) {
       slug: finalSlug,
       views: 0,
     };
+
+    console.log('Blog data to create:', blogData);
 
     const blog = await prisma.blog.create({
       data: blogData,
@@ -232,6 +226,8 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    console.log('Blog created successfully:', blog);
+
     return NextResponse.json({
       ...blog,
       commentsCount: blog._count?.Comment || 0,
@@ -240,7 +236,6 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('Error creating blog:', error);
-    
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
         return NextResponse.json(
@@ -249,7 +244,6 @@ export async function POST(req: NextRequest) {
         );
       }
     }
-
     return NextResponse.json(
       { error: 'Failed to create blog' },
       { status: 500 }
