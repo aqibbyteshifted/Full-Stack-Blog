@@ -25,6 +25,7 @@ interface Blog {
     avatar: string | null;
   };
   views: number;
+  commentsCount?: number;
 }
 
 // Format date to relative time (e.g., "2 days ago")
@@ -339,9 +340,9 @@ export default function HomePage() {
                           <span>{blog.views || 0}</span>
                         </span>
                         <span className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                          <FiMessageSquare className="h-4 w-4 mr-1" />
-                          <span>{blog.tags?.length || 0}</span>
-                        </span>
+  <FiMessageSquare className="h-4 w-4 mr-1" />
+  <span>{blog.commentsCount ?? 0}</span>
+</span>
                       </div>
                     </div>
                   </div>
