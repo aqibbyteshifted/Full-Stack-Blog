@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -33,7 +33,7 @@ model Blog {
   category  String
   status    String    @default("Draft")
   imageUrl  String?
-  authorId  String?   // Make sure this is optional
+  authorId  String?
   readTime  Int       @default(5)
   slug      String    @unique
   views     Int       @default(0)
@@ -41,8 +41,8 @@ model Blog {
   tags      String[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  Comment   Comment[] // Make sure relation name matches
   author    User?     @relation(fields: [authorId], references: [id])
+  Comment   Comment[]
 }
 
 model Comment {
