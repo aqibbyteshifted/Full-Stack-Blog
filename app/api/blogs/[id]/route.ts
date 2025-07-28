@@ -122,3 +122,41 @@ async function updateBlog(
     );
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const resolvedParams = await params;
+    const { id, error, status } = validateBlogId(resolvedParams.id);
+    if (error) {
+      return NextResponse.json({ error }, { status: status || 400 });
+    }
+
+    // Check if blog exists
+    const existingBlog = await prisma.blog.findUnique({
+      where: { id },
+    });
+
+    if (!existingBlog) {
+      return NextResponse.json(
+        { error: 'Blog not found' },
+        { status: 404 }
+      );
+    }
+
+    // Delete the blog
+    await prisma.blog.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting blog:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete blog' },
+      { status: 500 }
+    );
+  }
+}

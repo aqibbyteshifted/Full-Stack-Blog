@@ -256,29 +256,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
-  try {
-    const id = Number(new URL(req.url).searchParams.get("id"));
-    if (!id || isNaN(id)) {
-      return NextResponse.json(
-        { error: 'Valid blog ID is required' },
-        { status: 400 }
-      );
-    }
-
-    await prisma.blog.delete({ where: { id } });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting blog:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete blog' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
-}
-
 export async function PATCH(req: NextRequest) {
   try {
     const id = Number(new URL(req.url).searchParams.get("id"));

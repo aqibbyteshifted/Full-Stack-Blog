@@ -50,7 +50,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
               <Component {...pageProps} />
               <Toaster
                 position="bottom-center"
-                toastOptions={{
+                toastOptions={{ 
                   className: cn(
                     'bg-background text-foreground border border-border shadow-lg',
                     'dark:bg-background dark:text-foreground',
