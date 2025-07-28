@@ -7,7 +7,7 @@ import SocialMedia from './SocialMedia';
 
 const ContactPage = () => {
   return (
-    <div className="bg-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-12 px-4 sm:px-6 lg:px-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb */}
         <Breadcrumb />
@@ -15,7 +15,7 @@ const ContactPage = () => {
         {/* Main Content */}
         <div className="mt-8">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact</h1>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Contact</h1>
             <ContactIntro />
           </div>
           
@@ -42,7 +42,7 @@ const ContactPage = () => {
           
           {/* Contact Form */}
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-center mb-8">Get in touch</h2>
+            <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">Get in touch</h2>
             <ContactForm />
           </div>
           

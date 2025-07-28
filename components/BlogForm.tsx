@@ -135,7 +135,9 @@ export default function BlogForm({
     try {
       await handleSubmit(e);
       
-      toast.success(initialData?.id ? 'Blog post updated successfully!' : 'Blog post created successfully!', {
+      // Show appropriate success message based on whether we're editing or creating
+      const successMessage = initialData?.id !== undefined ? 'Blog post updated successfully!' : 'Blog post created successfully!';
+      toast.success(successMessage, {
         id: toastId,
         duration: 3000,
       });

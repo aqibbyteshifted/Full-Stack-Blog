@@ -44,9 +44,26 @@ export async function GET(
   }
 }
 
+// Export both PUT and PATCH methods
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return updateBlog(request, params, 'PUT');
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
+) {
+  return updateBlog(request, params, 'PATCH');
+}
+
+// Common update function for both PUT and PATCH methods
+async function updateBlog(
+  request: Request,
+  params: Promise<{ id: string }>,
+  method: 'PUT' | 'PATCH'
 ) {
   try {
     const resolvedParams = await params;
@@ -77,13 +94,17 @@ export async function PATCH(
       );
     }
 
-    // Prepare update data
+    // Prepare update data with all fields from the form
     const updateData = {
       title: data.title,
       subtitle: data.subtitle || '',
       content: data.content,
       category: data.category,
+      imageUrl: data.imageUrl || null,
+      tags: data.tags || [],
+      featured: data.featured || false,
       status: data.status || 'Unpublished',
+      updatedAt: new Date(),
     };
 
     // Update the blog

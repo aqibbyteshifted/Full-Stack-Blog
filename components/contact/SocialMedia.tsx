@@ -14,11 +14,11 @@ const SocialMedia = () => {
   return (
     <div className="text-center">
       <div className="flex items-center justify-center space-x-2 mb-4">
-        <Instagram className="h-6 w-6 text-gray-700" />
-        <span className="text-lg font-medium">Athena</span>
+        <Instagram className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+        <span className="text-lg font-medium text-gray-900 dark:text-white">Athena</span>
       </div>
-      <p className="text-gray-600 mb-6">Follow Me On Instagram</p>
-      <p className="text-sm text-gray-500">Followed by: 216.2k</p>
+      <p className="text-gray-600 dark:text-gray-400 mb-6">Follow Me On Instagram</p>
+      <p className="text-sm text-gray-500 dark:text-gray-500">Followed by: 216.2k</p>
       
       {/* Instagram image grid */}
       <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
