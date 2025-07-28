@@ -42,17 +42,17 @@ const ContactForm = () => {
 
   if (isSubmitted) {
     return (
-      <div className="text-center p-8 bg-green-50 rounded-lg">
-        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-          <Check className="h-6 w-6 text-green-600" />
+      <div className="text-center p-8 bg-green-50 dark:bg-green-900/20 rounded-lg">
+        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30">
+          <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
         </div>
-        <h3 className="mt-3 text-lg font-medium text-gray-900">Message sent successfully!</h3>
-        <p className="mt-2 text-sm text-gray-500">
+        <h3 className="mt-3 text-lg font-medium text-gray-900 dark:text-white">Message sent successfully!</h3>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-300">
           Thank you for contacting us. We&apos;ll get back to you soon.
         </p>
         <button
           onClick={() => setIsSubmitted(false)}
-          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-500"
         >
           Send another message
         </button>
@@ -64,7 +64,7 @@ const ContactForm = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Your Name <span className="text-red-500">*</span>
           </label>
           <div className="mt-1">
@@ -73,17 +73,17 @@ const ContactForm = () => {
               type="text"
               {...register('name', { required: 'Name is required' })}
               className={`block w-full px-4 py-2 border ${
-                errors.name ? 'border-red-300' : 'border-gray-300'
-              } rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none`}
+                errors.name ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
+              } rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
             />
             {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name.message}</p>
             )}
           </div>
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Your Email <span className="text-red-500">*</span>
           </label>
           <div className="mt-1">
@@ -98,17 +98,17 @@ const ContactForm = () => {
                 },
               })}
               className={`block w-full px-4 py-2 border ${
-                errors.email ? 'border-red-300' : 'border-gray-300'
-              } rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none`}
+                errors.email ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
+              } rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
             )}
           </div>
         </div>
 
         <div>
-          <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Your Address
           </label>
           <div className="mt-1">
@@ -116,13 +116,13 @@ const ContactForm = () => {
               id="address"
               type="text"
               {...register('address')}
-              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none"
+              className="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Your Phone
           </label>
           <div className="mt-1">
@@ -130,14 +130,14 @@ const ContactForm = () => {
               id="phone"
               type="tel"
               {...register('phone')}
-              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none"
+              className="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm outline-none focus:outline-none focus:ring-0 focus:ring-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
           </div>
         </div>
       </div>
 
       <div>
-        <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Subject <span className="text-red-500">*</span>
         </label>
         <div className="mt-1">
@@ -156,7 +156,7 @@ const ContactForm = () => {
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Your Message <span className="text-red-500">*</span>
         </label>
         <div className="mt-1">
@@ -180,19 +180,15 @@ const ContactForm = () => {
             id="terms"
             type="checkbox"
             {...register('terms', { required: 'You must accept the terms' })}
-            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-400 rounded bg-white dark:bg-gray-700"
           />
         </div>
         <div className="ml-3 text-sm">
-          <label htmlFor="terms" className="font-medium text-gray-700">
-            I agree to the{' '}
-            <a href="#" className="text-blue-600 hover:text-blue-500">
-              Terms and Privacy Policy
-            </a>
-            <span className="text-red-500"> *</span>
+          <label htmlFor="terms" className="font-medium text-gray-700 dark:text-white">
+            I agree to the <a href="#" className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">Terms of Service</a> and <a href="#" className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">Privacy Policy</a>
           </label>
           {errors.terms && (
-            <p className="mt-1 text-red-600">{errors.terms.message}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.terms.message}</p>
           )}
         </div>
       </div>

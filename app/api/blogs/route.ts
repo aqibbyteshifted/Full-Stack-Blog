@@ -1,8 +1,7 @@
-import { PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { NextResponse, type NextRequest } from "next/server";
 import { blogPostSchema } from "@/lib/validations";
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma'
 
 // Types
 interface Author {
